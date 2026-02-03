@@ -1,0 +1,2 @@
+ALTER TABLE pitch_decks 
+ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT '';
