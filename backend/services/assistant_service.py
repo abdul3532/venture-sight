@@ -33,6 +33,7 @@ from tools.pipeline import (
     get_deal_details,
     add_deal,
     delete_deal,
+    fetch_deck_from_url,
     update_thesis,
     _get_council_results, 
     _format_council_context
@@ -130,6 +131,9 @@ async def _execute_tool(tool_name: str, args: dict, user_id: str, document_conte
         elif tool_name == "delete_deal":
             return await delete_deal(args["startup_name"], user_id)
         
+        elif tool_name == "fetch_deck_from_url":
+            return await fetch_deck_from_url(args["url"], args["startup_name"], user_id)
+        
         else:
             return f"Unknown tool: {tool_name}"
             
@@ -158,6 +162,12 @@ async def chat_with_associate(
     # Get user's thesis for context
     thesis = await thesis_service.get_thesis(user_id)
     thesis_context = thesis_service.build_system_prompt_context(thesis) if thesis else ""
+    
+    # Get all deal names for awareness
+    from services.pdf_service import pdf_service
+    all_decks = await pdf_service.list_decks(user_id)
+    deal_names = [d.get("startup_name") for d in all_decks if d.get("startup_name")]
+    pipeline_context = f"\nYOUR RECENT DEALS (CRM): {', '.join(deal_names[:50])}\n" if deal_names else ""
     
     # Get council results if analyzing a specific deck
     council_context = ""
@@ -215,6 +225,7 @@ async def chat_with_associate(
     system_prompt = ASSOCIATE_SYSTEM_PROMPT.format(
         current_date=current_date,
         thesis_context=thesis_context,
+        pipeline_context=pipeline_context,
         council_context=council_context,
         rag_context=rag_context,
         available_tools=", ".join([t['function']['name'] for t in ALL_TOOLS])

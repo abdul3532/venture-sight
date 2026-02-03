@@ -31,7 +31,7 @@ export interface PitchDeck {
     filename: string;
     startup_name: string | null;
     match_score: number;
-    status: "pending" | "analyzing" | "analyzed" | "archived";
+    status: "pending" | "processing" | "analyzing" | "analyzed" | "archived";
     uploaded_at: string;
     country?: string;
     industry?: string;
@@ -119,7 +119,7 @@ export interface ConsensusResult {
             website: string;
             similarity: number;
             funding: string;
-            team_size: string;
+            differentiation_factor: string;
             description: string;
         }[];
         [key: string]: any;

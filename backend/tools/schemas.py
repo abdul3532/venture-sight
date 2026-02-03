@@ -147,6 +147,28 @@ DELETE_DEAL_SCHEMA = {
     }
 }
 
+FETCH_FROM_URL_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "fetch_deck_from_url",
+        "description": "Download and ingest a pitch deck PDF from a public URL. Use when a user provides a link to a deck.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "description": "The public URL to the PDF file."
+                },
+                "startup_name": {
+                    "type": "string",
+                    "description": "The name of the startup."
+                }
+            },
+            "required": ["url", "startup_name"]
+        }
+    }
+}
+
 # Combine all tool schemas
 ALL_TOOLS = [
     SEARCH_TOOL_SCHEMA,
@@ -160,5 +182,6 @@ ALL_TOOLS = [
     UPDATE_THESIS_SCHEMA,
     GET_PIPELINE_SUMMARY_SCHEMA,
     ADD_DEAL_SCHEMA,
-    DELETE_DEAL_SCHEMA
+    DELETE_DEAL_SCHEMA,
+    FETCH_FROM_URL_SCHEMA
 ]

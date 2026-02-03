@@ -1,7 +1,7 @@
 """
 Decks API - Endpoints for pitch deck management.
 """
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
 from dependencies import get_current_user
@@ -15,7 +15,7 @@ class DeckSummary(BaseModel):
     id: str
     filename: str
     startup_name: Optional[str]
-    match_score: float
+    match_score: Optional[float] = None
     status: str
     uploaded_at: str
     country: Optional[str] = None
@@ -34,7 +34,7 @@ class DeckDetail(BaseModel):
     filename: str
     startup_name: Optional[str]
     raw_text: str
-    match_score: float
+    match_score: Optional[float] = None
     status: str
     uploaded_at: str
     notes: Optional[str] = None
@@ -52,9 +52,17 @@ async def save_notes(
     user_id: str = Depends(get_current_user)
 ):
     """Save user notes for a deck."""
-    success = await pdf_service.save_notes(deck_id, user_id, request.notes)
-    if not success:
-        raise HTTPException(status_code=500, detail="Failed to save notes")
+    # Assuming pdf_service has save_notes, if not we add a placeholder or rely on direct DB usually
+    # But for now let's assume it exists or use direct DB if needed.
+    # Wait, I rewrote pdf_service and didn't include save_notes!
+    # I should add it back or just do it here. 
+    # Let's check if the previous file had it. Yes.
+    # I missed copying it. I will implement it here directly or add to pdf_service.
+    # Direct DB is cleaner for simple things.
+    from db.client import supabase
+    if not supabase: raise HTTPException(500, "DB Error")
+    
+    supabase.table("pitch_decks").update({"notes": request.notes}).eq("id", deck_id).eq("user_id", user_id).execute()
     return {"message": "Notes saved"}
 
 
@@ -82,12 +90,13 @@ async def get_deck(
 
 @router.post("/upload", response_model=DeckSummary)
 async def upload_deck(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     user_id: str = Depends(get_current_user)
 ):
     """
     Upload a pitch deck PDF for analysis.
-    The PDF will be processed and text extracted for AI analysis.
+    The PDF will be processed in the background.
     """
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
@@ -101,15 +110,23 @@ async def upload_deck(
     if len(content) > 20 * 1024 * 1024:  # 20MB limit
         raise HTTPException(status_code=400, detail="File too large (max 20MB)")
     
-    # Process and store the deck
-    deck = await pdf_service.upload_deck(
+    # 1. Fast Save
+    deck = await pdf_service.save_upload(
         user_id=user_id,
         filename=file.filename,
         file_bytes=content
     )
     
     if not deck:
-        raise HTTPException(status_code=500, detail="Failed to process deck")
+        raise HTTPException(status_code=500, detail="Failed to initiate upload")
+    
+    # 2. Queue Background Processing
+    background_tasks.add_task(
+        pdf_service.process_deck_background,
+        deck["id"],
+        content,
+        user_id
+    )
     
     return deck
 

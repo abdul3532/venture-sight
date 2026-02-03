@@ -8,8 +8,7 @@ interface Competitor {
     website?: string;
     similarity: number;
     funding?: string;
-    employees?: string;
-    team_size?: string; // Backend field
+    differentiation_factor?: string;
     description?: string;
 }
 
@@ -58,7 +57,7 @@ export function CompetitorsTab({ competitors }: CompetitorsTabProps) {
                                 <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Company</th>
                                 <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Similarity</th>
                                 <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Funding</th>
-                                <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Team Size</th>
+                                <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Differentiation</th>
                                 <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Description</th>
                             </tr>
                         </thead>
@@ -99,8 +98,8 @@ export function CompetitorsTab({ competitors }: CompetitorsTabProps) {
                                     <td className="px-4 py-3 text-sm">
                                         {competitor.funding || "—"}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                                        {competitor.team_size || competitor.employees || "—"}
+                                    <td className="px-4 py-3 text-sm text-muted-foreground max-w-xs">
+                                        {competitor.differentiation_factor || "—"}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-muted-foreground max-w-xs truncate">
                                         {competitor.description || "—"}

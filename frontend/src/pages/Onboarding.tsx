@@ -42,7 +42,7 @@ export default function Onboarding() {
     const [preferredStage, setPreferredStage] = useState(existingThesis?.preferred_stage || "Seed");
     const [antiThesis, setAntiThesis] = useState<string[]>(existingThesis?.anti_thesis || []);
 
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(0);
 
     const handleSectorToggle = (sector: string) => {
         setSelectedSectors(prev =>
@@ -96,7 +96,7 @@ export default function Onboarding() {
 
             {/* Progress Steps */}
             <div className="flex items-center justify-center gap-2 mb-8">
-                {[1, 2, 3].map((s) => (
+                {[0, 1, 2, 3].map((s) => (
                     <div
                         key={s}
                         className={`w-3 h-3 rounded-full transition-colors ${s === step ? 'bg-primary' : s < step ? 'bg-primary/50' : 'bg-muted'
@@ -106,6 +106,35 @@ export default function Onboarding() {
             </div>
 
             <Card className="glass-card p-6 border-border/50">
+                {step === 0 && (
+                    <div className="space-y-6 animate-fade-in text-center py-4">
+                        <div className="space-y-4">
+                            <h2 className="text-2xl font-semibold">Welcome to VentureSight</h2>
+                            <p className="text-muted-foreground leading-relaxed">
+                                To provide elite-level analysis, our agents need to understand your unique investment philosophy.
+                                We'll start by defining your <strong>Investment Thesis</strong>—this ensures our "Council of Agents"
+                                evaluates every pitch deck through the lens of your fund's specific goals.
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mt-8">
+                                <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                                    <h4 className="font-semibold text-primary mb-1 text-sm">Personalized Scoring</h4>
+                                    <p className="text-xs text-muted-foreground">Agents score deals based on your sector and stage focus.</p>
+                                </div>
+                                <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+                                    <h4 className="font-semibold text-primary mb-1 text-sm">Smart Filtering</h4>
+                                    <p className="text-xs text-muted-foreground">Our Anti-Thesis filters ensure you only see deals that move the needle.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <Button
+                            onClick={() => setStep(1)}
+                            className="w-full mt-6 h-12 text-lg"
+                        >
+                            Let's Get Started <ChevronRight className="w-5 h-5 ml-2" />
+                        </Button>
+                    </div>
+                )}
                 {step === 1 && (
                     <div className="space-y-6 animate-fade-in">
                         <div className="space-y-2">
@@ -132,8 +161,8 @@ export default function Onboarding() {
                                         key={sector}
                                         variant={selectedSectors.includes(sector) ? "default" : "outline"}
                                         className={`cursor-pointer transition-colors ${selectedSectors.includes(sector)
-                                                ? "bg-primary hover:bg-primary/80"
-                                                : "hover:bg-accent"
+                                            ? "bg-primary hover:bg-primary/80"
+                                            : "hover:bg-accent"
                                             }`}
                                         onClick={() => handleSectorToggle(sector)}
                                     >

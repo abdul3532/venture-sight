@@ -46,14 +46,24 @@ async def trigger_analysis(
 ):
     """
     Trigger AI Council analysis for a pitch deck.
-    Analysis runs in the background - poll the GET endpoint for results.
+    Analysis runs in the background. Idempotent-ish.
     """
     # Get the deck
     deck = await pdf_service.get_deck(deck_id, user_id)
     if not deck:
         raise HTTPException(status_code=404, detail="Deck not found")
     
-    if deck.get("status") == "analyzing":
+    current_status = deck.get("status")
+    
+    # If already analyzed, just return success
+    if current_status == "analyzed":
+        return AnalysisTriggerResponse(
+            deck_id=deck_id,
+            message="Analysis already complete.",
+            status="analyzed"
+        )
+        
+    if current_status == "analyzing":
         return AnalysisTriggerResponse(
             deck_id=deck_id,
             message="Analysis already in progress",

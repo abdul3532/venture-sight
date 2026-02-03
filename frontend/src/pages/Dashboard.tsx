@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useDecks, useThesis } from "@/lib/api";
@@ -6,11 +7,19 @@ import {
     BarChart3, Target, ArrowUpRight, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
     const { data: decks = [], isLoading: decksLoading } = useDecks();
-    const { data: thesis } = useThesis();
+    const { data: thesis, isLoading: thesisLoading } = useThesis();
+    const navigate = useNavigate();
+
+    // Onboarding redirect
+    useEffect(() => {
+        if (!thesisLoading && (!thesis || !thesis.thesis_text)) {
+            navigate("/onboarding");
+        }
+    }, [thesis, thesisLoading, navigate]);
 
     // Calculate stats
     const totalDeals = decks.length;
@@ -32,7 +41,7 @@ export default function Dashboard() {
         ? Math.round(decks.reduce((sum, d) => sum + (d.match_score || 0), 0) / decks.length)
         : 0;
 
-    if (decksLoading) {
+    if (decksLoading || thesisLoading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />

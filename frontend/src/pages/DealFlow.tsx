@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { useDecks, useUploadDeck, useThesis, useTriggerAnalysis, useDeleteDeck } from "@/lib/api";
+import { useDecks, useUploadDeck, useThesis, useDeleteDeck } from "@/lib/api";
 import {
     Upload, Search, Loader2, Target,
     ChevronUp, ChevronDown, Table2, Columns, Plus, Filter,
@@ -33,7 +33,7 @@ type SortOrder = "asc" | "desc";
 interface FileUpload {
     type: "pitch_deck";
     file: File | null;
-    label: string;
+    label: "Pitch Deck";
     icon: React.ElementType;
 }
 
@@ -83,7 +83,6 @@ export default function DealFlow() {
     const { data: decks = [], isLoading } = useDecks();
     const uploadDeck = useUploadDeck();
     const deleteDeck = useDeleteDeck(); // Use Hard Delete Hook
-    const triggerAnalysis = useTriggerAnalysis();
 
     // Filter decks
     const filteredDecks = decks.filter(deck => {
@@ -192,10 +191,9 @@ export default function DealFlow() {
         if (!pitchDeckFile) return;
 
         try {
+            // Backend now auto-triggers analysis in background
             const deck = await uploadDeck.mutateAsync(pitchDeckFile);
-            if (deck?.id) {
-                await triggerAnalysis.mutateAsync(deck.id);
-            }
+
             setUploadFiles([...fileTypes]);
             setUploadModalOpen(false);
             if (deck?.id) {
@@ -479,7 +477,10 @@ export default function DealFlow() {
                                                 "w-12 h-12 rounded-full flex items-center justify-center",
                                                 fileUpload.file ? "bg-primary/20" : "bg-muted"
                                             )}>
-                                                <fileUpload.icon className={cn("w-6 h-6", fileUpload.file ? "text-primary" : "text-muted-foreground")} />
+                                                {(() => {
+                                                    const Icon = fileUpload.icon;
+                                                    return <Icon className={cn("w-6 h-6", fileUpload.file ? "text-primary" : "text-muted-foreground")} />;
+                                                })()}
                                             </div>
                                             <div>
                                                 <p className="font-semibold">{fileUpload.label}</p>
@@ -510,8 +511,8 @@ export default function DealFlow() {
                         </div>
                         <div className="flex justify-end gap-3 pt-4">
                             <Button variant="outline" onClick={() => setUploadModalOpen(false)}>Cancel</Button>
-                            <Button onClick={handleUploadAndAnalyze} disabled={!hasPitchDeck || uploadDeck.isPending || triggerAnalysis.isPending} className="gap-2">
-                                {(uploadDeck.isPending || triggerAnalysis.isPending) ? <><Loader2 className="w-4 h-4 animate-spin" />Analyzing...</> : <><Upload className="w-4 h-4" />Upload & Analyze</>}
+                            <Button onClick={handleUploadAndAnalyze} disabled={!hasPitchDeck || uploadDeck.isPending} className="gap-2">
+                                {uploadDeck.isPending ? <><Loader2 className="w-4 h-4 animate-spin" />Uploading...</> : <><Upload className="w-4 h-4" />Upload & Analyze</>}
                             </Button>
                         </div>
                     </div>

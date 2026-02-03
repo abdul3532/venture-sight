@@ -59,13 +59,13 @@ export function SidekickChat({ isOpen, onToggle, deckId, deckContext }: Sidekick
     return (
         <div
             className={cn(
-                "fixed bottom-6 right-6 w-96 bg-card border border-border rounded-xl shadow-2xl shadow-black/20 z-50 overflow-hidden transition-all duration-300",
+                "fixed bottom-6 right-6 w-96 bg-card border border-border rounded-xl shadow-2xl shadow-black/20 z-50 overflow-hidden transition-all duration-300 flex flex-col",
                 isMinimized ? "h-14" : "h-[500px]"
             )}
         >
             {/* Header */}
             <div
-                className="h-14 px-4 flex items-center justify-between bg-sidebar text-sidebar-foreground cursor-pointer"
+                className="h-14 px-4 flex items-center justify-between bg-sidebar text-sidebar-foreground cursor-pointer shrink-0"
                 onClick={() => isMinimized && setIsMinimized(false)}
             >
                 <div className="flex items-center gap-2">
@@ -74,13 +74,13 @@ export function SidekickChat({ isOpen, onToggle, deckId, deckContext }: Sidekick
                 </div>
                 <div className="flex items-center gap-1">
                     <button
-                        onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
+                        onClick={(e: React.MouseEvent) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
                         className="p-1.5 hover:bg-sidebar-accent rounded-md transition-colors"
                     >
                         {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
                     </button>
                     <button
-                        onClick={(e) => { e.stopPropagation(); onToggle(); }}
+                        onClick={(e: React.MouseEvent) => { e.stopPropagation(); onToggle(); }}
                         className="p-1.5 hover:bg-sidebar-accent rounded-md transition-colors"
                     >
                         <X className="w-4 h-4" />
@@ -91,7 +91,7 @@ export function SidekickChat({ isOpen, onToggle, deckId, deckContext }: Sidekick
             {!isMinimized && (
                 <>
                     {/* Messages */}
-                    <div className="flex-1 h-[calc(500px-14px-14px-56px)] overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                         {messages.length === 0 && (
                             <div className="text-center text-muted-foreground py-8">
                                 <Bot className="w-10 h-10 mx-auto mb-3 opacity-50" />
@@ -154,13 +154,13 @@ export function SidekickChat({ isOpen, onToggle, deckId, deckContext }: Sidekick
                     </div>
 
                     {/* Input */}
-                    <div className="h-14 px-4 py-2 border-t border-border bg-background">
-                        <div className="flex gap-2 h-full">
+                    <div className="p-4 border-t border-border bg-background shrink-0">
+                        <div className="flex gap-2">
                             <Input
                                 placeholder="Ask about this deal..."
                                 value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                                onKeyPress={(e: React.KeyboardEvent) => e.key === "Enter" && handleSend()}
                                 className="bg-muted/50 border-0 focus-visible:ring-1"
                             />
                             <Button

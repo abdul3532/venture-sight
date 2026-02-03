@@ -120,7 +120,8 @@ class CouncilService:
                     "stage": metadata.get("stage"),
                     "business_model": metadata.get("business_model"),
                     "email": metadata.get("email"),
-                    "team_size": metadata.get("team_size")
+                    "team_size": metadata.get("team_size"),
+                    "description": metadata.get("description", "") or tagline
                 }
                 
             except Exception as e:

@@ -53,8 +53,8 @@ class Competitor(BaseModel):
     website: str = Field(..., description="Clean URL e.g. 'stripe.com'")
     similarity: int = Field(..., description="0-100 score")
     funding: str = Field(..., description="Total funding e.g. '$50M' or 'Bootstrapped'")
-    team_size: str = Field(..., description="e.g. '100-500'")
-    description: str = Field(..., description="1 sentence description")
+    differentiation_factor: str = Field(..., description="1-2 sentences on how the startup is different/better than this competitor.")
+    description: str = Field(..., description="1 sentence description of what the competitor does.")
 
 class CompetitorAnalysis(BaseModel):
     competitors: List[Competitor]

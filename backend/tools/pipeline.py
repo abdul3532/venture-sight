@@ -149,7 +149,7 @@ async def add_deal(startup_name: str, filename: str, user_id: str, document_cont
         # 1. Create the deal
         deck = await pdf_service.upload_deck_from_text(
             user_id=user_id,
-            filename=filename or f"{startup_name}_imported.pdf",
+            filename=filename or f"{startup_name}_imported.txt",
             raw_text=document_context,
             startup_name=startup_name
         )
@@ -183,6 +183,46 @@ async def delete_deal(startup_name: str, user_id: str) -> str:
         logger.error(f"Delete deal error: {e}")
         return f"Error during deletion: {str(e)}"
 
+async def fetch_deck_from_url(url: str, startup_name: str, user_id: str) -> str:
+    """Download and ingest a pitch deck PDF from a URL."""
+    try:
+        import httpx
+        from services.pdf_service import pdf_service
+        
+        logger.info(f"Downloading deck from {url} for {startup_name}")
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            content = response.content
+            
+        if not content:
+            return "Failed to download any content from the provided URL."
+            
+        filename = url.split("/")[-1].split("?")[0] or f"{startup_name}.pdf"
+        if not filename.lower().endswith(".pdf"):
+            filename += ".pdf"
+            
+        # 1. Fast Save
+        deck = await pdf_service.save_upload(
+            user_id=user_id,
+            filename=filename,
+            file_bytes=content
+        )
+        
+        if not deck:
+            return "Failed to initiate upload for the downloaded deck."
+            
+        # 2. Start Background Processing
+        # We don't await this so the AI can respond quickly
+        asyncio.create_task(pdf_service.process_deck_background(deck["id"], content, user_id))
+        
+        return f"Successfully downloaded and queued '{startup_name}' for analysis! It will appear in your pipeline once processing is complete."
+        
+    except Exception as e:
+        logger.error(f"Fetch from URL error: {e}")
+        return f"Failed to download/ingest deck: {str(e)}"
+
 # ============================================================
 # HELPERS (MOVED FROM ASSISTANT SERVICE)
 # ============================================================
@@ -214,8 +254,15 @@ def _format_council_context(council_results: Dict) -> str:
             context += f"Overall Score: {match_score}/100\n"
         if consensus.get("recommendation"):
             context += f"Recommendation: {consensus.get('recommendation')}\n"
-        if consensus.get("summary"):
-            context += f"Summary: {consensus.get('summary')}\n"
+        
+        # Fixing key: prompt uses consensus_summary
+        summary = consensus.get("consensus_summary") or consensus.get("summary")
+        if summary:
+            context += f"Executive Summary: {summary}\n"
+            
+        memo = consensus.get("investment_memo")
+        if memo:
+            context += f"\nDetailed Investment Memo:\n{memo}\n"
 
     # Add CRM Metrics
     crm_data = council_results.get("consensus", {}).get("crm_data", {})
@@ -224,6 +271,11 @@ def _format_council_context(council_results: Dict) -> str:
 
     if crm_data:
         context += "\n=== KEY METRICS ===\n"
+        if crm_data.get('tagline'):
+            context += f"Tagline: {crm_data.get('tagline')}\n"
+        if crm_data.get('description'):
+            context += f"Product Description: {crm_data.get('description')}\n"
+            
         context += f"Industry: {crm_data.get('industry') or 'N/A'}\n"
         context += f"Stage: {crm_data.get('stage') or crm_data.get('series') or 'N/A'}\n"
         context += f"Team Size: {crm_data.get('team_size') or 'N/A'}\n"
@@ -235,16 +287,18 @@ def _format_council_context(council_results: Dict) -> str:
         if crm_data.get('country'):
             context += f"Location: {crm_data.get('country')}\n"
     
-    # Add agent perspectives
+    # Add agent perspectives (briefly)
+    context += "\n=== AGENT PERSPECTIVES ===\n"
     for agent in ["optimist", "skeptic", "quant"]:
         if council_results.get(agent):
             agent_data = council_results[agent]
-            context += f"\n{agent.upper()} VIEW:\n"
+            context += f"\n{agent.upper()} REPORT:\n"
             if isinstance(agent_data, dict):
+                # If they returned an object, flatten it
                 for key, value in agent_data.items():
                     context += f"  - {key}: {value}\n"
             else:
-                # Individual reports are now Markdown strings
-                context += f"  {str(agent_data)[:1000]}\n"
+                # Individual reports are now Markdown strings - taking first 500 chars for brevity
+                context += f"  {str(agent_data)[:500]}...\n"
                 
     return context

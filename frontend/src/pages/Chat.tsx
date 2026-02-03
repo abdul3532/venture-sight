@@ -226,7 +226,7 @@ export default function Chat() {
                                             >
                                                 <span className="truncate flex-1">{conv.title || "Untitled Chat"}</span>
                                                 <button
-                                                    onClick={(e) => handleDeleteConv(e, conv.id)}
+                                                    onClick={(e: React.MouseEvent) => handleDeleteConv(e, conv.id)}
                                                     className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive transition-opacity"
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />
@@ -375,25 +375,25 @@ export default function Chat() {
                                         icon={BarChart3}
                                         label="Pipeline Summary"
                                         desc="Briefing on all active dealflow"
-                                        onClick={() => handleSendMessage("Give me a high-level summary of my current pipeline.")}
+                                        onClick={() => handleSendMessage("Perform an exhaustive analysis of my current investment pipeline. Categorize all active deals by their current stage (Seed, Series A, etc.), highlight the top 3 high-signal startups with a brief 'why' for each, and identify any deals that appear stalled or require immediate attention. Summarize the total TAM represented by our active dealflow.")}
                                     />
                                     <QuickActionButton
                                         icon={Globe}
                                         label="Market Trends"
                                         desc="Identify latest industry shifts"
-                                        onClick={() => handleSendMessage("What are the core trends in the tech markets today?")}
+                                        onClick={() => handleSendMessage("Conduct a deep-dive research session into the core technology market trends today. Identify the top 3 shifts that are most relevant to venture capital, specify sub-sectors that show the highest growth potential, and cite recent macro trends or venture activity that support these conclusions. Format your response as a professional investment briefing.")}
                                     />
                                     <QuickActionButton
                                         icon={Target}
                                         label="Thesis Check"
                                         desc="Audit pipeline against thesis"
-                                        onClick={() => handleSendMessage("Which current deals in my pipeline align best with my investment thesis?")}
+                                        onClick={() => handleSendMessage("Perform a rigorous audit of my current deal pipeline against my established investment thesis. For each active deal, provide an 'Alignment Score' from 1-10 with a detailed justification. Identify any outliers that deviate from the thesis and explain why they were included or if they represent a strategic shift. Conclude with a summary of portfolio gaps.")}
                                     />
                                     <QuickActionButton
                                         icon={TrendingUp}
                                         label="Compare Deals"
                                         desc="Cross-evaluate top startups"
-                                        onClick={() => handleSendMessage("Compare my top 3 startups in terms of metrics and team.")}
+                                        onClick={() => handleSendMessage("Execute a side-by-side comparative analysis of the top 3 startups currently in my pipeline. Focus on their core value propositions, estimated market share, team strength, and identified risks. Present your findings in a structured comparison matrix (Markdown table) and provide a final recommendation on which deal warrants the most immediate deep-dive due diligence.")}
                                     />
                                 </div>
                             </div>
@@ -472,8 +472,8 @@ export default function Chat() {
                             <Input
                                 placeholder={selectedDeckIds.length > 0 ? "Ask about selected deals..." : "Ask a pipeline query or market question..."}
                                 value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && handleSendMessage()}
                                 disabled={chat.isPending}
                                 className="bg-background/80 border-border/50 focus:border-primary/50 focus:ring-primary/10 text-foreground placeholder:text-muted-foreground rounded-xl py-6 pl-4 pr-12 shadow-inner"
                             />

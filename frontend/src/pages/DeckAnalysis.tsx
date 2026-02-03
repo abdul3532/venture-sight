@@ -1,12 +1,12 @@
-import { useState } from "react";
+import * as React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useDeck, useCouncilAnalysis, useTriggerAnalysis, useSaveNotes } from "@/lib/api";
+import { useDeck, useCouncilAnalysis, useSaveNotes } from "@/lib/api";
 import {
-    ArrowLeft, Play, FileText, Sparkles, AlertTriangle,
+    ArrowLeft, FileText, Sparkles, AlertTriangle,
     TrendingUp, Loader2, ExternalLink,
     Share2, ChevronDown, Users, BarChart3, Building2, StickyNote,
     MessageSquare
@@ -36,7 +36,7 @@ const parseNumber = (val: string | number | undefined) => {
 };
 
 // Helper component to format agent output properly
-function AgentContent({ data }: { data?: AgentAnalysis }) {
+function AgentContent({ data }: { data?: AgentAnalysis }): React.JSX.Element {
     if (!data) {
         return <p className="text-muted-foreground">No analysis available</p>;
     }
@@ -108,29 +108,21 @@ export default function DeckAnalysis() {
 
     const { data: deck, isLoading: deckLoading } = useDeck(deckId || null);
     const { data: analysis } = useCouncilAnalysis(deckId || null);
-    const triggerAnalysis = useTriggerAnalysis();
 
-    const [activeTab, setActiveTab] = useState("overview");
-    const [chatOpen, setChatOpen] = useState(false);
-    const [notes, setNotes] = useState("");
+
+    const [activeTab, setActiveTab] = React.useState("overview");
+    const [chatOpen, setChatOpen] = React.useState(false);
+    const [notes, setNotes] = React.useState("");
     const saveNotesMutation = useSaveNotes();
 
     // Sync notes from deck
-    useState(() => {
+    React.useEffect(() => {
         if (deck?.notes) {
             setNotes(deck.notes);
         }
-    });
-    // Also sync when deck updates
-    if (deck?.notes && notes === "" && deck.notes !== notes) {
-        setNotes(deck.notes);
-    }
+    }, [deck?.notes]);
 
-    const handleTriggerAnalysis = () => {
-        if (deckId) {
-            triggerAnalysis.mutate(deckId);
-        }
-    };
+
 
     const handleSaveNotes = () => {
         if (deckId) {
@@ -153,7 +145,7 @@ export default function DeckAnalysis() {
         );
     }
 
-    const isAnalyzing = deck.status === "analyzing";
+    const isAnalyzing = deck.status === "analyzing" || deck.status === "pending" || deck.status === "processing";
     const hasAnalysis = analysis?.status === "analyzed" && analysis.consensus;
 
     // Handle both old match_score and new final_score (0-10 scale)
@@ -177,7 +169,7 @@ export default function DeckAnalysis() {
                             <a
                                 href="#"
                                 className="flex items-center gap-1 text-primary hover:underline"
-                                onClick={(e) => e.preventDefault()}
+                                onClick={(e: React.MouseEvent) => e.preventDefault()}
                             >
                                 {deck.filename.replace('.pdf', '.com')}
                                 <ExternalLink className="w-3 h-3" />
@@ -242,7 +234,10 @@ export default function DeckAnalysis() {
                                 "hover:text-foreground"
                             )}
                         >
-                            {tab.icon && <tab.icon className="w-4 h-4 mr-1.5" />}
+                            {(() => {
+                                const Icon = tab.icon;
+                                return Icon && <Icon className="w-4 h-4 mr-1.5" />;
+                            })()}
                             {tab.label}
                             {tab.count && (
                                 <Badge variant="secondary" className="ml-1.5 px-1.5 py-0 text-xs">
@@ -389,24 +384,8 @@ export default function DeckAnalysis() {
                             </Card>
                         )}
 
-                        {/* Run Analysis CTA */}
-                        {!hasAnalysis && !isAnalyzing && (
-                            <Card className="p-8 border-border/50 text-center">
-                                <TrendingUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                                <h3 className="font-semibold mb-2">No Analysis Yet</h3>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Run the AI Council to generate a detailed investment memo
-                                </p>
-                                <Button onClick={handleTriggerAnalysis} disabled={triggerAnalysis.isPending} className="gap-2">
-                                    {triggerAnalysis.isPending ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <Play className="w-4 h-4" />
-                                    )}
-                                    Run AI Council
-                                </Button>
-                            </Card>
-                        )}
+                        {/* Run Analysis CTA Removed: Automated by background pipeline */}
+
 
                         {isAnalyzing && (
                             <Card className="p-8 border-border/50 text-center">
@@ -467,11 +446,7 @@ export default function DeckAnalysis() {
                         ) : (
                             <div className="text-center py-12 text-muted-foreground">
                                 <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                <p>Run analysis to see the Council debate</p>
-                                <Button onClick={handleTriggerAnalysis} className="mt-4 gap-2">
-                                    <Play className="w-4 h-4" />
-                                    Run AI Council
-                                </Button>
+                                <p>Analysis is in progress or not yet triggered.</p>
                             </div>
                         )}
                     </Card>
@@ -522,7 +497,7 @@ export default function DeckAnalysis() {
                             className="w-full h-48 p-3 rounded-lg border border-border bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                             placeholder="Add your notes about this deal..."
                             value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
                         />
                     </Card>
                 </TabsContent>
