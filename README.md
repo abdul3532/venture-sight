@@ -164,4 +164,12 @@ npm run dev
 
 ---
 
+## 👥 Our team
+
+*   **Abdul** - Lead Developer & Architect - *Full Stack Development & System Design*
+*   **Yan** - Backend Developer - *API Implementation & AI Services*
+*   **Henry** - Frontend Developer - *UI/UX Design & Data Visualization*
+
+---
+
 **License:** MIT
