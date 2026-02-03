@@ -31,7 +31,7 @@ type SortField = "startup_name" | "match_score" | "status" | "uploaded_at";
 type SortOrder = "asc" | "desc";
 
 interface FileUpload {
-    type: "pitch_deck" | "business_plan" | "financials" | "demo";
+    type: "pitch_deck";
     file: File | null;
     label: string;
     icon: React.ElementType;
@@ -64,9 +64,6 @@ const formatTAM = (value: number | string | undefined) => {
 
 const fileTypes: FileUpload[] = [
     { type: "pitch_deck", file: null, label: "Pitch Deck", icon: Presentation },
-    { type: "business_plan", file: null, label: "Business Plan", icon: FileText },
-    { type: "financials", file: null, label: "Financials", icon: BarChart3 },
-    { type: "demo", file: null, label: "Demo / Video", icon: FileText },
 ];
 
 export default function DealFlow() {
@@ -467,22 +464,47 @@ export default function DealFlow() {
                     </DialogHeader>
                     <div className="space-y-4 mt-4">
                         <p className="text-sm text-muted-foreground">Upload files for analysis.</p>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-3">
                             {uploadFiles.map(fileUpload => (
                                 <div key={fileUpload.type}
-                                    className={cn("border rounded-lg p-4 cursor-pointer transition-all", fileUpload.file ? "border-primary bg-primary/5" : "border-dashed border-border hover:border-primary/50", fileUpload.type === "pitch_deck" && !fileUpload.file && "border-primary/30")}
+                                    className={cn(
+                                        "border rounded-lg p-6 cursor-pointer transition-all",
+                                        fileUpload.file ? "border-primary bg-primary/5" : "border-dashed border-border hover:border-primary/50",
+                                        "border-primary/30"
+                                    )}
                                     onClick={() => !fileUpload.file && handleFileSelect(fileUpload.type)}>
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <fileUpload.icon className={cn("w-5 h-5", fileUpload.file ? "text-primary" : "text-muted-foreground")} />
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className={cn(
+                                                "w-12 h-12 rounded-full flex items-center justify-center",
+                                                fileUpload.file ? "bg-primary/20" : "bg-muted"
+                                            )}>
+                                                <fileUpload.icon className={cn("w-6 h-6", fileUpload.file ? "text-primary" : "text-muted-foreground")} />
+                                            </div>
                                             <div>
-                                                <p className="text-sm font-medium">{fileUpload.label}</p>
-                                                {fileUpload.type === "pitch_deck" && <p className="text-xs text-primary">Required</p>}
+                                                <p className="font-semibold">{fileUpload.label}</p>
+                                                <p className="text-xs text-muted-foreground">PDF, PPTX, DOCX supported</p>
                                             </div>
                                         </div>
-                                        {fileUpload.file && <button onClick={(e) => { e.stopPropagation(); handleRemoveFile(fileUpload.type); }} className="p-1 hover:bg-muted rounded"><X className="w-3 h-3" /></button>}
+                                        {fileUpload.file && (
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleRemoveFile(fileUpload.type); }}
+                                                className="p-2 hover:bg-muted rounded-full transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
                                     </div>
-                                    {fileUpload.file ? <div className="mt-2 flex items-center gap-1 text-xs text-primary"><Check className="w-3 h-3" />{fileUpload.file.name.slice(0, 20)}...</div> : <p className="mt-2 text-xs text-muted-foreground">Click to upload</p>}
+                                    {fileUpload.file ? (
+                                        <div className="mt-4 flex items-center gap-2 text-sm text-primary font-medium">
+                                            <Check className="w-4 h-4" />
+                                            {fileUpload.file.name}
+                                        </div>
+                                    ) : (
+                                        <p className="mt-4 text-sm text-muted-foreground text-center py-2 border-t border-dashed border-border/50">
+                                            Click to select a file
+                                        </p>
+                                    )}
                                 </div>
                             ))}
                         </div>

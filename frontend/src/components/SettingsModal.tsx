@@ -58,13 +58,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             <Label htmlFor="name" className="text-right">
                                 Name
                             </Label>
-                            <Input id="name" defaultValue="Senhor Finanças" className="col-span-3" />
+                            <Input id="name" defaultValue="VentureSight User" className="col-span-3" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="username" className="text-right">
                                 Username
                             </Label>
-                            <Input id="username" defaultValue="@financas" className="col-span-3" />
+                            <Input id="username" defaultValue="@venturesight" className="col-span-3" />
                         </div>
                         <div className="flex justify-end">
                             <Button onClick={onClose}>Save Profile</Button>

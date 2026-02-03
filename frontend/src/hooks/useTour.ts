@@ -14,8 +14,8 @@ export function useTour() {
                     {
                         element: 'h1',
                         popover: {
-                            title: 'Welcome to Senhor Finanças 🎩',
-                            description: 'Your advanced AI financial assistant. Let\'s take a quick tour!'
+                            title: 'Welcome to VentureSight AI 👁️',
+                            description: 'Your advanced AI venture assistant. Let\'s take a quick tour!'
                         }
                     },
                     {
