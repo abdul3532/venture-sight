@@ -263,11 +263,13 @@ class PDFService:
                 logger.info(f"Saved deck record: {deck['id']} for {startup_name}")
                 
                 # Ingest for RAG (async/background)
+                import asyncio
                 try:
                     from services.rag_service import rag_service
-                    await rag_service.ingest_deck(deck['id'], raw_text)
+                    asyncio.create_task(rag_service.ingest_deck(deck['id'], raw_text))
+                    logger.info(f"Background RAG ingestion started for {deck['id']}")
                 except Exception as e:
-                    logger.error(f"RAG ingestion failed: {e}")
+                    logger.error(f"RAG ingestion trigger failed: {e}")
                 
                 return deck
             
@@ -354,23 +356,26 @@ class PDFService:
                     final_crm["tam"] = smart_data["tam"]
                 
                 # Assign fields for Dashboard
-                deck["country"] = final_crm.get("country") or smart_data.get("country")
-                deck["industry"] = final_crm.get("industry") or smart_data.get("industry")
-                deck["model"] = final_crm.get("business_model") or smart_data.get("business_model")
-                deck["series"] = final_crm.get("stage") or smart_data.get("stage")
-                deck["email"] = final_crm.get("email") or smart_data.get("email")
+                deck["country"] = final_crm.get("country") or smart_data.get("country") or "—"
+                deck["industry"] = final_crm.get("industry") or smart_data.get("industry") or "—"
+                deck["model"] = final_crm.get("business_model") or smart_data.get("business_model") or "—"
+                deck["series"] = final_crm.get("stage") or smart_data.get("stage") or "—"
+                deck["email"] = final_crm.get("email") or smart_data.get("email") or "N/A"
                 deck["team_size"] = final_crm.get("team_size") or smart_data.get("team_size")
-                deck["tagline"] = final_crm.get("tagline") or smart_data.get("tagline")
+                deck["tagline"] = final_crm.get("tagline") or smart_data.get("tagline") or "Innovating in the venture space"
                 deck["sam"] = final_crm.get("sam") or smart_data.get("sam")
                 deck["som"] = final_crm.get("som") or smart_data.get("som")
                 
                 # Parse TAM
-                tam_str = final_crm.get("tam")
+                tam_str = final_crm.get("tam") or smart_data.get("tam")
                 deck["tam"] = None
                 if tam_str and isinstance(tam_str, (int, float)):
                     deck["tam"] = float(tam_str)
-                elif tam_str and str(tam_str).replace(",","").replace(".","").isdigit():
-                    deck["tam"] = float(str(tam_str).replace(",",""))
+                elif tam_str:
+                    try:
+                        deck["tam"] = float(str(tam_str).replace(",","").replace("$","").strip())
+                    except:
+                        pass
                 
                 if "council_analyses" in deck:
                     del deck["council_analyses"]

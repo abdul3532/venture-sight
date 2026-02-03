@@ -15,7 +15,7 @@ import os
 import json
 import logging
 from typing import List, Dict, Any, Optional
-from utils.observability import observe, OpenAI
+from utils.observability import observe, OpenAI, AsyncOpenAI
 from db.client import supabase
 from services.thesis_service import thesis_service
 
@@ -52,7 +52,7 @@ _client = None
 def _get_client():
     global _client
     if not _client:
-        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        _client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
     return _client
 
 
@@ -66,7 +66,8 @@ async def _execute_tool(tool_name: str, args: dict, user_id: str, document_conte
     
     try:
         if tool_name == "search_web":
-            return perform_web_search(args["query"])
+            import asyncio
+            return await asyncio.to_thread(perform_web_search, args["query"])
         
         elif tool_name == "analyze_competitors":
             result = analyze_competitors(
@@ -101,7 +102,8 @@ async def _execute_tool(tool_name: str, args: dict, user_id: str, document_conte
             return json.dumps(result, indent=2)
         
         elif tool_name == "grade_investment_readiness":
-            result = grade_investment_readiness(
+            import asyncio
+            result = await asyncio.to_thread(grade_investment_readiness, 
                 criteria_scores=args["criteria_scores"],
                 stage=args.get("stage", "Seed")
             )
@@ -230,7 +232,7 @@ async def chat_with_associate(
     # Agentic loop
     for _ in range(5):
         try:
-            response = _get_client().chat.completions.create(
+            response = await _get_client().chat.completions.create(
                 model=settings.DEFAULT_MODEL,
                 messages=messages,
                 tools=ALL_TOOLS,

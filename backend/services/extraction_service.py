@@ -6,7 +6,7 @@ import os
 import json
 import logging
 from typing import Dict, Any, Optional
-from openai import OpenAI
+from utils.observability import AsyncOpenAI
 from pydantic import BaseModel, Field
 
 from config import settings
@@ -20,7 +20,7 @@ _client = None
 def get_client():
     global _client
     if not _client:
-        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        _client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
     return _client
 
 class StartupMetadata(BaseModel):
@@ -55,7 +55,7 @@ class ExtractionService:
             if allowed_industries:
                 industry_instruction = f"\nCRITICAL: The 'industry' MUST be chosen from this list: {', '.join(allowed_industries)}."
 
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create(
                 model=settings.DEFAULT_MODEL,  # Use smart model for accuracy
                 messages=[
                     {"role": "system", "content": self.SYSTEM_PROMPT + industry_instruction},

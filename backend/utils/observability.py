@@ -1,6 +1,6 @@
 import os
 import logging
-from openai import OpenAI as OriginalOpenAI
+from openai import OpenAI as OriginalOpenAI, AsyncOpenAI as OriginalAsyncOpenAI
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
@@ -11,6 +11,7 @@ load_dotenv()
 # Default to no-op
 observe = lambda *args, **kwargs: (lambda func: func)
 OpenAI = OriginalOpenAI
+AsyncOpenAI = OriginalAsyncOpenAI
 
 # Check for keys (for logging/debugging)
 pk = os.getenv("LANGFUSE_PUBLIC_KEY")
@@ -25,13 +26,14 @@ else:
 try:
     # Try to import Langfuse
     from langfuse.decorators import observe as lf_observe
-    from langfuse.openai import OpenAI as LfOpenAI
+    from langfuse.openai import OpenAI as LfOpenAI, AsyncOpenAI as LfAsyncOpenAI
     
     # If successful and keys are present, use them
     if pk and sk:
         observe = lf_observe
         OpenAI = LfOpenAI
-        logger.info("Langfuse observability initialized successfully.")
+        AsyncOpenAI = LfAsyncOpenAI
+        logger.info("Langfuse observability initialized successfully (Sync + Async).")
     else:
         logger.warning("Langfuse imported but keys are missing. Using fallback.")
 except ImportError:

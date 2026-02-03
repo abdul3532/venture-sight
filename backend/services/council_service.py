@@ -13,7 +13,7 @@ import os
 import json
 import logging
 import asyncio
-from utils.observability import observe, OpenAI
+from utils.observability import observe, OpenAI, AsyncOpenAI
 from db.client import supabase
 from services.research_service import research_service
 
@@ -22,8 +22,8 @@ from services.prompts import OPTIMIST_PROMPT, SKEPTIC_PROMPT, QUANT_PROMPT, CONS
 
 logger = logging.getLogger(__name__)
 
-# OpenAI client (Wrapped)
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+# OpenAI client (Wrapped) - Async
+client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 
 class CouncilService:
@@ -205,7 +205,7 @@ class CouncilService:
         try:
             full_prompt = f"{system_prompt}\n\n{thesis_context}\n\n{research_context}"
             
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create(
                 model=settings.DEFAULT_MODEL,
                 messages=[
                     {"role": "system", "content": full_prompt},
@@ -244,7 +244,7 @@ class CouncilService:
             
             full_prompt = f"{self.CONSENSUS_PROMPT}\n\n{thesis_context}\n\n{research_context}"
             
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create(
                 model=settings.DEFAULT_MODEL,
                 messages=[
                     {"role": "system", "content": full_prompt},

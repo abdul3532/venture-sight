@@ -1,7 +1,8 @@
 import os
 import logging
 from typing import List, Dict, Any, Optional
-from utils.observability import OpenAI
+import asyncio
+from utils.observability import AsyncOpenAI
 from db.client import supabase
 
 logger = logging.getLogger(__name__)
@@ -12,21 +13,26 @@ _client = None
 def _get_client():
     global _client
     if _client is None:
-        _client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        _client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     return _client
 
 class RAGService:
     def __init__(self):
         self.embedding_model = "text-embedding-3-small"
 
-    def _get_embedding(self, text: str) -> List[float]:
-        """Generate embedding for text using OpenAI."""
+    async def _get_embedding(self, text: str) -> List[float]:
+        """Generate embedding for text using OpenAI (Async)."""
         try:
             text = text.replace("\n", " ")
-            return _get_client().embeddings.create(
+            client = _get_client()
+            # If client is the class, we need to instantiate it, but usually it's already instantiated or we use a factory
+            # In our case _get_client returns an instance (or the class if not initialized)
+            # Let's fix _get_client to returned Async instance
+            response = await client.embeddings.create(
                 input=[text], 
                 model=self.embedding_model
-            ).data[0].embedding
+            )
+            return response.data[0].embedding
         except Exception as e:
             logger.error(f"Error generating embedding: {e}")
             return []
@@ -41,10 +47,13 @@ class RAGService:
             chunks = self._chunk_text(text)
             logger.info(f"Ingesting {len(chunks)} chunks for deck {deck_id}")
 
-            # 2. Generate embeddings and prepare rows
+            # 2. Generate embeddings concurrently
+            tasks = [self._get_embedding(chunk) for chunk in chunks]
+            embeddings = await asyncio.gather(*tasks)
+
+            # 3. Prepare rows
             rows = []
-            for chunk in chunks:
-                embedding = self._get_embedding(chunk)
+            for chunk, embedding in zip(chunks, embeddings):
                 if embedding:
                     rows.append({
                         "deck_id": deck_id,

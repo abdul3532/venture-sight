@@ -7,7 +7,7 @@ import json
 import logging
 import asyncio
 from typing import Dict, Any, List, Optional
-from utils.observability import observe, OpenAI
+from utils.observability import observe, OpenAI, AsyncOpenAI
 from duckduckgo_search import DDGS
 from pydantic import BaseModel, Field
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -29,7 +29,7 @@ _client = None
 def get_client():
     global _client
     if not _client:
-        _client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        _client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
     return _client
 
 # --- Data Models ---
@@ -79,7 +79,7 @@ class ResearchService:
         # 1. Generate Smart Queries
         try:
             client = get_client()
-            query_response = client.chat.completions.create(
+            query_response = await client.chat.completions.create(
                 model=settings.DEFAULT_MODEL,
                 messages=[
                     {"role": "system", "content": TAM_RESEARCH_PROMPT},
@@ -98,7 +98,7 @@ class ResearchService:
         # 3. LLM Analysis
         try:
             client = get_client()
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create(
                 model=settings.DEFAULT_MODEL,
                 messages=[
                     {"role": "system", "content": self.SYSTEM_PROMPT_TAM},
@@ -139,7 +139,10 @@ class ResearchService:
         logger.info(f"Starting Competitor Search for {startup_name}")
         
         # 1. Generate Smart Queries (The "Brain" Step)
-            query_response = client.chat.completions.create(
+        context_text = description if description else tagline
+        try:
+            client = get_client()
+            query_response = await client.chat.completions.create(
                 model=settings.DEFAULT_MODEL,
                 messages=[
                     {"role": "system", "content": COMPETITOR_RESEARCH_PROMPT},
@@ -174,7 +177,7 @@ class ResearchService:
         # 3. LLM Analysis
         try:
             client = get_client()
-            response = client.chat.completions.create(
+            response = await client.chat.completions.create(
                 model=settings.DEFAULT_MODEL,
                 messages=[
                     {"role": "system", "content": self.SYSTEM_PROMPT_COMPETITORS},
