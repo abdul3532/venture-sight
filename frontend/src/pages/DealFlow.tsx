@@ -6,7 +6,7 @@ import { useDecks, useUploadDeck, useThesis, useTriggerAnalysis, useDeleteDeck }
 import {
     Upload, Search, Loader2, Target,
     ChevronUp, ChevronDown, Table2, Columns, Plus, Filter,
-    FileText, BarChart3, Presentation, X, Check,
+    Presentation, X, Check,
     Trash2, Globe, DollarSign, TrendingUp, ShieldX
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
