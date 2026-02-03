@@ -5,6 +5,8 @@ import { useChat } from "@/lib/api";
 import { MessageSquare, X, Send, Loader2, Bot, User, Minimize2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/lib/types";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface SidekickChatProps {
     isOpen: boolean;
@@ -126,9 +128,16 @@ export function SidekickChat({ isOpen, onToggle, deckId, deckContext }: Sidekick
                                     "max-w-[80%] p-3 rounded-xl text-sm",
                                     msg.role === "user"
                                         ? "bg-primary text-primary-foreground rounded-tr-none"
-                                        : "bg-muted rounded-tl-none"
+                                        : "bg-muted rounded-tl-none border border-border/50 text-foreground"
                                 )}>
-                                    {msg.content}
+                                    <div className={cn(
+                                        "prose prose-xs dark:prose-invert max-w-none break-words",
+                                        msg.role === "user" ? "prose-p:text-primary-foreground prose-headings:text-primary-foreground prose-strong:text-primary-foreground" : "text-foreground"
+                                    )}>
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {msg.content}
+                                        </ReactMarkdown>
+                                    </div>
                                 </div>
                             </div>
                         ))}

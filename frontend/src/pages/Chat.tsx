@@ -415,7 +415,9 @@ export default function Chat() {
                                 )}>
                                     <div className={cn(
                                         "prose prose-sm dark:prose-invert max-w-none break-words",
-                                        message.role === "user" ? "prose-p:text-primary-foreground prose-headings:text-primary-foreground prose-strong:text-foreground font-medium" : "text-foreground"
+                                        message.role === "user"
+                                            ? "prose-p:text-primary-foreground prose-headings:text-primary-foreground prose-strong:text-primary-foreground font-medium"
+                                            : "prose-p:text-foreground/90 prose-headings:text-foreground prose-strong:text-foreground"
                                     )}>
                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                             {message.content}
