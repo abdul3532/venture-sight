@@ -14,6 +14,12 @@ In the fast-paced world of Venture Capital, analysts spend thousands of hours re
 
 ---
 
+## 🌐 Live Demo
+*   **Frontend**: [https://venture-sight-v1.vercel.app/](https://venture-sight-v1.vercel.app/)
+*   **Backend API**: [https://venture-sight.onrender.com](https://venture-sight.onrender.com)
+
+---
+
 ## 🏗 System Architecture & Workflows
 
 VentureSight follows a modular, agent-centric architecture designed for scalability and observability.
