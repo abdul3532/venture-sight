@@ -64,7 +64,7 @@ export default function Auth() {
                     <img src="/logo.png" alt="Logo" className="w-12 h-12 rounded-xl shadow-lg shadow-primary/20 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold">{mode === "login" ? "Welcome Back" : "Create an Account"}</h1>
                     <p className="text-muted-foreground text-sm mt-2">
-                        {mode === "login" ? "Enter your credentials to access your terminal." : "Start your journey with AI-powered finance."}
+                        {mode === "login" ? "Enter your credentials to access your terminal." : "Start your journey with AI-powered venture analysis."}
                     </p>
                 </div>
 
