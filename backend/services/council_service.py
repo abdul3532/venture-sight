@@ -13,6 +13,7 @@ import os
 import json
 import logging
 import asyncio
+from typing import Dict, Any, List, Optional
 from utils.observability import observe, OpenAI, AsyncOpenAI
 from db.client import supabase
 from services.research_service import research_service
@@ -310,23 +311,28 @@ class CouncilService:
         try:
             # 1. Fetch Analysis
             analysis_resp = supabase.table("council_analyses").select("*").eq("deck_id", deck_id).execute()
+            # Retrieve analysis state
             analysis = analysis_resp.data[0] if analysis_resp.data else {}
             
-            # 2. Fetch Deck Data (containing Smart Extraction + Research Results)
-            deck_resp = supabase.table("pitch_decks").select("crm_data").eq("id", deck_id).single().execute()
-            crm = deck_resp.data.get("crm_data", {}) if deck_resp.data else {}
+            # Fetch Deck Data for status fallback
+            deck_resp = supabase.table("pitch_decks").select("status, crm_data").eq("id", deck_id).single().execute()
+            deck_data = deck_resp.data or {}
             
-            # 3. Merge Strategies
+            # Use the most accurate status
+            # If we have an analysis, it's analyzed. Otherwise, use deck status.
+            status = "analyzed" if analysis else deck_data.get("status", "pending")
+            
             if not analysis:
                 return {
                     "deck_id": deck_id,
-                    "status": "pending_council",
-                    "consensus": {"crm_data": crm} # Pass Research data even if council pending
+                    "status": status,
+                    "consensus": {"crm_data": deck_data.get("crm_data", {})}
                 }
             
-            # Merge CRM into Consensus for frontend convenience
+            # Merge CRM into Consensus
             if "consensus" not in analysis: analysis["consensus"] = {}
-            analysis["consensus"]["crm_data"] = crm
+            analysis["consensus"]["crm_data"] = deck_data.get("crm_data", {})
+            analysis["status"] = status
             
             return analysis
         except Exception as e:

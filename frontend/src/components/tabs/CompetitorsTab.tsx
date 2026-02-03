@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Competitor {
@@ -18,43 +18,14 @@ interface CompetitorsTabProps {
 }
 
 export function CompetitorsTab({ competitors }: CompetitorsTabProps) {
-    // Default example data if none provided
-    const defaultCompetitors: Competitor[] = [
-        {
-            name: "Deckmatch",
-            website: "deckmatch.com",
-            similarity: 85,
-            funding: "$2.5M",
-            employees: "11-50",
-            description: "AI-powered deal screening for VCs"
-        },
-        {
-            name: "Harmonic.ai",
-            website: "harmonic.ai",
-            similarity: 72,
-            funding: "$5M",
-            employees: "11-50",
-            description: "AI company research and tracking"
-        },
-        {
-            name: "Signal",
-            website: "signal.nfx.com",
-            similarity: 68,
-            funding: "$500M",
-            employees: "50-200",
-            description: "VC CRM and deal sourcing platform"
-        },
-        {
-            name: "Visible.vc",
-            website: "visible.vc",
-            similarity: 55,
-            funding: "$15M",
-            employees: "11-50",
-            description: "Investor updates and portfolio monitoring"
-        }
-    ];
-
-    const data = competitors || defaultCompetitors;
+    if (!competitors || competitors.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 text-muted-foreground bg-muted/20 rounded-lg mt-6 border border-dashed text-center">
+                <Users className="w-12 h-12 mb-4 opacity-20" />
+                <p>Competitive analysis will appear here once the AI Council completes its deliberation.</p>
+            </div>
+        );
+    }
 
     const getSimilarityColor = (score: number) => {
         if (score >= 80) return "text-red-500 bg-red-500/10";
@@ -75,7 +46,7 @@ export function CompetitorsTab({ competitors }: CompetitorsTabProps) {
                                 Companies with overlapping market or product focus
                             </p>
                         </div>
-                        <Badge variant="secondary">{data.length} found</Badge>
+                        <Badge variant="secondary">{competitors.length} found</Badge>
                     </div>
                 </div>
 
@@ -92,7 +63,7 @@ export function CompetitorsTab({ competitors }: CompetitorsTabProps) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border/50">
-                            {data.map((competitor, index) => (
+                            {competitors.map((competitor, index) => (
                                 <tr key={index} className="hover:bg-muted/20 transition-colors">
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">

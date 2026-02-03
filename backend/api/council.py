@@ -106,7 +106,7 @@ async def get_analysis(
     
     return AnalysisResponse(
         deck_id=deck_id,
-        status="analyzed",
+        status=analysis.get("status", "analyzed"),
         optimist=analysis.get("optimist_analysis"),
         skeptic=analysis.get("skeptic_analysis"),
         quant=analysis.get("quant_analysis"),

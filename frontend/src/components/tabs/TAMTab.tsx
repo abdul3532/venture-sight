@@ -17,11 +17,18 @@ interface TAMTabProps {
 }
 
 export function TAMTab({ tamData }: TAMTabProps) {
-    // Default example data if none provided
-    const tam = tamData?.tam || 50000000000; // $50B
-    const sam = tamData?.sam || 5000000000;  // $5B
-    const som = tamData?.som || 500000000;   // $500M
-    const analysis = tamData?.analysis || "Market analysis not yet available. Run AI Council to generate TAM analysis.";
+    const tam = tamData?.tam || 0;
+    const sam = tamData?.sam || 0;
+    const som = tamData?.som || 0;
+    const analysis = tamData?.analysis;
+
+    if (!tamData || (!tam && !analysis)) {
+        return (
+            <div className="flex items-center justify-center p-12 text-muted-foreground bg-muted/20 rounded-lg mt-6 border border-dashed">
+                Market analysis will appear here once the AI Council completes its deliberation.
+            </div>
+        );
+    }
 
     const formatCurrency = (value: number) => {
         if (value >= 1000000000) {
@@ -35,8 +42,8 @@ export function TAMTab({ tamData }: TAMTabProps) {
 
     // Calculate percentages for the slider visualization
     const tamWidth = 100;
-    const samWidth = (sam / tam) * 100;
-    const somWidth = (som / tam) * 100;
+    const samWidth = tam > 0 ? (sam / tam) * 100 : 0;
+    const somWidth = tam > 0 ? (som / tam) * 100 : 0;
 
     return (
         <div className="grid lg:grid-cols-2 gap-6 mt-6">
