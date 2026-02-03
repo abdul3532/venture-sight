@@ -27,7 +27,7 @@ This is the primary analysis pipeline triggered upon deck upload. It simulates a
 1.  **The Optimist:** Focuses on vision, market size, and "Blue Ocean" potential.
 2.  **The Skeptic:** Identifies execution risks, competition, and red flags.
 3.  **The Quant:** Validates financial assumptions and unit economics.
-4.  **Consensus Agent:** Synthesizes the debate into a final **Match Score (0-100)** and structured **Investment Memo**.
+4.  **Consensus Agent:** Synthesizes the debate into a final **Match Score (0-100)**, **Investment Grade (A-F)**, and structured **Investment Memo**.
 
 **Key Features:**
 - **Parallel Execution:** Agents analyze the deck concurrently for speed.
@@ -54,10 +54,11 @@ A specialized service for external validation. It automates:
 
 ## 3. Data Flow
 
-1.  **Ingestion:** User uploads a PDF. Text is extracted via `pdfplumber` and chunked for vector storage.
-2.  **Analysis:** The Council runs (Optimist + Skeptic + Quant -> Consensus). Results are stored in `council_analyses`.
-3.  **Enrichment:** Metadata (Team Size, Tagline, Industry) is extracted and synced to the `pitch_decks` CRM table.
-4.  **Interaction:** User chats with The Associate. The Associate retrieves context from `pitch_decks` (CRM), `council_analyses` (Insights), and `deck_chunks` (Vector Store).
+1.  **Ingestion:** User uploads a PDF or promotes text from chat.
+2.  **Vectorization:** Text is extracted via `pdfplumber`, chunked, and stored in `pgvector` for semantic search.
+3.  **Asynchronous Analysis:** The Council analysis is triggered in the background. It runs: `Optimist + Skeptic + Quant -> Consensus`.
+4.  **CRM Enrichment:** Metadata (Team Size, Industry, TAM) is extracted and synced to the `pitch_decks` table.
+5.  **Interaction:** The Associate retrieves context from CRM data, Council insights, and the RAG vector store.
 
 ---
 

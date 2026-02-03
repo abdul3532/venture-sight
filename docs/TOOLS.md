@@ -80,6 +80,14 @@ This document references all the tools available to the VentureSight AI Associat
 - `sector` (string): Industry vertical.
 **Returns:** JSON benchmarking data (Low/Med/High percentile) for that stage/sector.
 
+### `grade_investment_readiness`
+**Purpose:** Grades a pitch deck against 11 VC-standard investment criteria (Team, Market, Traction, etc.).
+**Use Case:** "How ready is this deck for a Series A pitch?" or "Calculate the investment grade for Validly."
+**Parameters:**
+- `criteria_scores` (dict): Score (1-10) for each criterion.
+- `stage` (string, optional): Expected funding stage.
+**Returns:** JSON object with overall grade (A-F), breakdown, and prioritized recommendations.
+
 ---
 
 ## **3. Thesis & Focus Tools**
@@ -93,6 +101,7 @@ This document references all the tools available to the VentureSight AI Associat
 - `stage` (string): Preferred investment stage.
 - `check_size_min` (int): Minimum investment.
 - `check_size_max` (int): Maximum investment.
+- `anti_thesis` (list[str]): Sectors or concepts to explicitly avoid.
 **Returns:** JSON object confirming the updated Thesis settings.
 
 ---
