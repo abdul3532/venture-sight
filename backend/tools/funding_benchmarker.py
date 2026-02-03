@@ -3,6 +3,7 @@ Funding Benchmarker Tool - Compares funding asks against industry benchmarks.
 """
 import logging
 from typing import Dict, Any, Optional
+from utils.observability import observe
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,7 @@ FUNDING_BENCHMARKS = {
 }
 
 
+@observe()
 def benchmark_funding(
     funding_ask: float,
     stage: str,

@@ -3,6 +3,7 @@ Investment Readiness Tool - Grades pitch decks against VC-grade criteria.
 """
 import logging
 from typing import Dict, Any, List, Optional
+from utils.observability import observe
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,7 @@ INVESTMENT_CRITERIA = [
 ]
 
 
+@observe()
 def grade_investment_readiness(
     criteria_scores: Dict[str, int],
     stage: str = "Seed"

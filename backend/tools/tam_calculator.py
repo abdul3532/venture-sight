@@ -3,10 +3,12 @@ TAM Calculator Tool - Validates market sizing claims in pitch decks.
 """
 import logging
 from typing import Dict, Any, Optional
+from utils.observability import observe
 
 logger = logging.getLogger(__name__)
 
 
+@observe()
 def calculate_tam(
     market_size_claimed: float,
     target_customers: int,

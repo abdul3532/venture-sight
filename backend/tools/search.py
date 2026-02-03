@@ -1,6 +1,7 @@
 from duckduckgo_search import DDGS
 import logging
 from typing import List, Dict
+from utils.observability import observe
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,7 @@ def _ddg_search_execution(query: str, max_results: int, mode: str = "text") -> L
             return list(ddgs.news(query, max_results=max_results))
         return list(ddgs.text(query, max_results=max_results))
 
+@observe()
 def perform_web_search(query: str, max_results: int = 3) -> str:
     """
     Executes a web search using DuckDuckGo and returns formatted results.

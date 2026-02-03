@@ -4,10 +4,12 @@ Competitor Analyzer Tool - Researches competitive landscape for startups.
 import logging
 from typing import Dict, Any, List
 from duckduckgo_search import DDGS
+from utils.observability import observe
 
 logger = logging.getLogger(__name__)
 
 
+@observe()
 def analyze_competitors(
     startup_name: str,
     industry: str,
