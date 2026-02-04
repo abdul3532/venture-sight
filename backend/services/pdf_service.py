@@ -233,10 +233,12 @@ class PDFService:
 
             # 2. Smart Metadata Extraction
             logger.info(f"Running extraction for {deck_id}...")
+            thesis = None
+            metadata = {}
             try:
                 from services.extraction_service import extraction_service
                 from services.thesis_service import thesis_service
-                
+
                 thesis = await thesis_service.get_thesis(user_id)
                 allowed_industries = thesis.get("target_sectors") if thesis else None
 

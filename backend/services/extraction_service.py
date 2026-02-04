@@ -5,7 +5,7 @@ Focuses on accuracy of factual fields (Name, TAM, Stage) rather than subjective 
 import os
 import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from utils.observability import AsyncOpenAI
 from pydantic import BaseModel, Field
 
